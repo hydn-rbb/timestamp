@@ -53,7 +53,7 @@ func DisableLogging() {
 }
 
 // Initialize the global clock once during application startup.
-func init() {
+func initOnce() {
 	once.Do(func() {
 		defer func() {
 			if r := recover(); r != nil {
@@ -84,6 +84,8 @@ func init() {
 // GetTimestamp returns a timestamp using monotonic elapsed time.
 // This function is thread-safe and guaranteed to return monotonically increasing values.
 func GetTimestamp() int64 {
+	initOnce()
+
 	if globalClock == nil {
 		// Fallback if initialization somehow failed completely
 		return time.Now().UnixMilli()
@@ -99,6 +101,7 @@ func GetTimestamp() int64 {
 // GetInitializationError returns any error that occurred during initialization.
 // Returns nil if initialization was successful.
 func GetInitializationError() error {
+	initOnce()
 	return initErr
 }
 
